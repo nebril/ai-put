@@ -1,0 +1,2 @@
+availability
+<?php
