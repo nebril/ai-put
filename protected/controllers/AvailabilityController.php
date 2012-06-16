@@ -27,15 +27,21 @@ class AvailabilityController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
+				'actions'=>array(),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array(
+				        'ajaxGetAvs',
+				        'ajaxEditAv',
+				        'ajaxCreateAv',
+				        'ajaxDeleteAv',
+				        'test',
+			        ),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete','create','update','index','view'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -132,7 +138,83 @@ class AvailabilityController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 	}
+	
+	public function actionAjaxGetAvs($id) {
+	    if(empty($id)) {
+	        $id = Yii::app()->user->id;
+	    }
+	    $avs = Availability::getAvsForFullCalendar($id);
+	    echo json_encode($avs);
+	}
+	
+	public function actionAjaxCreateAv() {
+	    $this->filterDresser();
+	    $av = new Availability();
+	    
+	    $av->start = $_POST['start'];
+	    $av->end= $_POST['end'];
+	    $av->hairdresserId = Yii::app()->user->id;
+	    
+	    $transaction = Yii::app()->db->beginTransaction();
+	    try {
+    	    if($av->save()) {
+    	        $transaction->commit();
+    	        echo $av->id;
+    	    }else {
+    	        throw new CHttpException('400', json_encode($av->getErrors()));
+    	    }
+	    } catch(CHttpException $e) {
+	        throw $e;
+	    } catch(Exception $e) {
+	        throw new CHttpException('500', $e->getMessage());
+	    }
+	}
+	
+	public function actionAjaxEditAv() {
+	     $this->filterDresser();
+	     $av = Availability::model()->findByPk($_POST['availabilityId']);
+	     $av->start = $_POST['start'];
+	     $av->end= $_POST['end'];
+	     
+	    try {
+    	    if($av->save()) {
+    	        $transaction->commit();
+    	        echo json_encode(true);
+    	    }else {
+    	        throw new CHttpException('400', json_encode($av->getErrors()));
+    	    }
+	    } catch(CHttpException $e) {
+	        throw $e;
+	    } catch(Exception $e) {
+	        throw new CHttpException('500', $e->getMessage());
+	    }
+	}
+	
+	public function actionAjaxDeleteAv() {
+	    $this->filterDresser();
+	    $av = Availability::model()->findByPk($_POST['availabilityId']);
+	    
+	    if($av->delete()) {
+	        echo json_encode(true);
+	    }else {
+	        throw new CHttpException('400', "unknown error");
+	    }
+	}
 
+	public function actionTest() {
+	    $av = Availability::model()->findByPk(1);
+	    
+	    $av->save();
+	    
+	    $this->render('update', array('model' => $av));
+	}
+	
+	private function filterDresser() {
+	    $user = Yii::app()->getModule('user')->user();
+	    if(!$user || !$user->profile->isHairdresser) {
+	        throw new CHttpException(403, "You're not a hairdresser");
+	    }
+	}
 	/**
 	 * Manages all models.
 	 */

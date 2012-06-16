@@ -2,6 +2,7 @@
 
 class AppointmentController extends Controller
 {
+    
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
@@ -27,15 +28,20 @@ class AppointmentController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
+				'actions'=>array(),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
+				'actions'=>array(
+	                'ajaxGetClientApps',
+			        'ajaxGetDresserApps',
+			        'ajaxConfirmApp',
+			        'ajaxCreateApp',
+		        ),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete', 'create','update', 'index','view'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -147,6 +153,46 @@ class AppointmentController extends Controller
 			'model'=>$model,
 		));
 	}
+	
+	public function actionAjaxGetClientApps($id) {
+	    if(empty($id)) {
+	        $id = Yii::app()->user->id;
+	    }
+	    $avs = Appointment::getAppsForFullCalendar($id, 0);
+	    echo json_encode($avs);
+	}
+	
+	public function actionAjaxGetDresserApps($id) {
+	    if(empty($id)) {
+	        $id = Yii::app()->user->id;
+	    }
+	    $avs = Appointment::getAppsForFullCalendar($id, 1);
+	    echo json_encode($avs);
+	}
+	
+	public function actionAjaxConfirmApp($id) {
+	    
+	}
+	
+	public function actionAjaxCreateApp() {
+	     
+	}
+	
+	public function actionAjaxDeleteApp($id) {
+	    $this->filterClient();
+	    $app = Appointment::model()->findByPk($id);
+	    
+	    if($app->belongsToCurrentClient()) {
+    	    if($app->delete()) {
+    	        echo json_encode(true);
+    	    }else {
+    	        throw new CHttpException('400', "unknown error");
+    	    }
+	    }else {
+	        throw new CHttpException('403', 'that\'s not your appointment');
+	    }
+	}
+	
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
@@ -172,5 +218,12 @@ class AppointmentController extends Controller
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
+	}
+	
+	private function filterClient() {
+	    $user = Yii::app()->getModule('user')->user();
+	    if(!$user || $user->profile->isHairdresser) {
+	        throw new CHttpException(403, "You're not a client");
+	    }
 	}
 }

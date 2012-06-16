@@ -8,20 +8,10 @@ class DefaultController extends Controller
         } 
     }
     
-    
 	public function actionIndex()
 	{
 	    $this->filterDresser();
 		$this->render('index');
 	}
-	
-	public function actionAvailability() {
-        $this->filterDresser();
-	    $this->render('availability');
-	}
-	
-	public function actionAppointments() {
-	    $this->filterDresser();
-	    $this->render('appointments');
-	}
+
 }

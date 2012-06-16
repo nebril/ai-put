@@ -7,15 +7,17 @@
  * @property integer $id
  * @property integer $hairdresserId
  * @property integer $clientId
- * @property integer $start
- * @property integer $hours
  * @property integer $isConfirmed
+ * @property string $date
+ * @property integer $hour
+ * @property integer $length
+ * @property integer $createTime
  *
  * The followings are the available model relations:
  * @property User $client
  * @property User $hairdresser
  */
-class Appointment extends CActiveRecord
+class Appointment extends Event
 {
 	/**
 	 * Returns the static model of the specified AR class.
@@ -43,21 +45,25 @@ class Appointment extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('hairdresserId, clientId, start, hours', 'required'),
-			array('hairdresserId, clientId, start, hours, isConfirmed', 'numerical', 'integerOnly'=>true),
-	        array('start', 'date', 'format' => 'dd.MM.yyyy H:00'),
-		// The following rule is used by search().
+			array('hairdresserId, clientId, date, hour, timeCreated', 'required'),
+			array('hairdresserId, clientId, isConfirmed, hour, length, timeCreated', 'numerical', 'integerOnly'=>true),
+			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, hairdresserId, clientId, start, hours, isConfirmed', 'safe', 'on'=>'search'),
+			array('id, hairdresserId, clientId, isConfirmed, date, hour, length', 'safe', 'on'=>'search'),
 		);
 	}
 
-	public function beforeSave() {
-	    $this->start = strtotime($this->start);
-	}
-	
-	public function afterFind() {
-	    $this->start = date("d.m.Y G:i", $this->start);
+	public function confirm() {
+	    $transaction = Yii::app()->db->beginTransaction();
+	    try {
+	        
+	        
+	        
+	        $transaction->commit();
+	    } catch(Exception $e) {
+	        $transaction->rollback();
+	        echo $e->getMessage();
+	    }
 	}
 	
 	/**
@@ -82,9 +88,10 @@ class Appointment extends CActiveRecord
 			'id' => 'ID',
 			'hairdresserId' => 'Hairdresser',
 			'clientId' => 'Client',
-			'start' => 'Start',
-			'hours' => 'Hours',
 			'isConfirmed' => 'Is Confirmed',
+			'date' => 'Date',
+			'hour' => 'Hour',
+			'length' => 'Length',
 		);
 	}
 
@@ -102,12 +109,82 @@ class Appointment extends CActiveRecord
 		$criteria->compare('id',$this->id);
 		$criteria->compare('hairdresserId',$this->hairdresserId);
 		$criteria->compare('clientId',$this->clientId);
-		$criteria->compare('start',$this->start);
-		$criteria->compare('hours',$this->hours);
 		$criteria->compare('isConfirmed',$this->isConfirmed);
+		$criteria->compare('date',$this->date,true);
+		$criteria->compare('hour',$this->hour);
+		$criteria->compare('length',$this->length);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
+	}
+	
+	public function userDresserScope($id) {
+	    $this->getDbCriteria()->mergeWith(array(
+	            'condition' => 'hairdresserId=:uid',
+	            'params' => array(':uid' => $id),
+	    ));
+	    return $this;
+	}
+	
+	public function userClientScope($id) {
+	    $this->getDbCriteria()->mergeWith(array(
+	            'condition' => 'clientId=:uid',
+	            'params' => array(':uid' => $id),
+	    ));
+	    return $this;
+	}
+	
+	public function unconfirmedScope() {
+	    $this->getDbCriteria()->mergeWith(array(
+	            'condition' => 'isConfirmed=0',
+	    ));
+	    return $this;
+	}
+	
+	public function beforeSave() {
+	    if($this->isNewRecord()) {
+	        $this->createTime = time();
+	    }
+	    
+	    return parent::beforeSave();
+	}
+	
+	public static function getAppsForFullCalendar($id, $isHairdresser) {
+	    $criteria = array(
+            'with' => array(
+                'client' => array('select' => array()),
+                'client.profile' => array('alias' => 'p1'),
+                'hairdresser' => array('select' => array()),
+                'hairdresser.profile' => array('alias' => 'p2'),
+            ),
+            'condition' => 'isConfirmed=1',
+        );
+	    
+	    if($isHairdresser) {
+	        $models = Appointment::model()->userDresserScope($id)->findAll($criteria);
+	    }else {
+	        $models = Appointment::model()->userClientScope($id)->findAll($criteria);
+	    }
+	    
+	    $result = array();
+	    foreach($models as $model) {
+	        //var_dump(strtotime($model->date));
+	        $startTime = strtotime($model->date) + 3600 * $model->hour;
+	    
+	        $result[] = array(
+	                'id' => 'av' . $model->id,
+	                'appointmentId' => $model->id,
+	                'title' => $model->client->profile->getFullName() . ' served by ' . $model->hairdresser->profile->getFullName(),
+	                'start' => $startTime,
+	                'end' => $startTime + 3600 * $model->length,
+	                'allDay' => false,
+	        );
+	    }
+	    return $result;
+	}
+	
+	public function belongsToCurrentClient() {
+	    return $this->clientId == Yii::app()->user->id;
 	}
 }

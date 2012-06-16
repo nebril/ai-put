@@ -13,7 +13,24 @@
 
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/main.css" />
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>/css/form.css" />
-
+    
+    <?php 
+	        Yii::app()->clientScript->registerScript('globalVariables',
+        'var baseUrl="' . Yii::app()->request->baseUrl . '";
+        var basePath="' . Yii::app()->createUrl('/') . '";
+        ',
+        CClientScript::POS_HEAD);
+	?>
+	
+	<?php
+	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-1.5.2.min.js');
+	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-ui-1.8.11.custom.min');
+	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/calendars.js');
+    Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/fullcalendar.min.js');
+    Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/js/fullcalendar.css');
+    Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery.countdown.min.js');
+    Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/js/jquery.countdown.css');
+    ?>
 	<title><?php echo CHtml::encode($this->pageTitle); ?></title>
 </head>
 
