@@ -41,7 +41,7 @@ class AppointmentController extends Controller
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete', 'create','update', 'index','view'),
+				'actions'=>array('admin','delete', 'create','update', 'index','view','report'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -50,6 +50,10 @@ class AppointmentController extends Controller
 		);
 	}
 
+	public function actionReport() {
+	    //TODO
+	}
+	
 	/**
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
@@ -158,6 +162,7 @@ class AppointmentController extends Controller
 	    if(empty($id)) {
 	        $id = Yii::app()->user->id;
 	    }
+	    
 	    $avs = Appointment::getAppsForFullCalendar($id, 0);
 	    echo json_encode($avs);
 	}
@@ -171,11 +176,35 @@ class AppointmentController extends Controller
 	}
 	
 	public function actionAjaxConfirmApp($id) {
-	    
+	    $this->filterClient();
+	    $app = Appointment::model()->findByPk($id);
+	    if($app->belongsToCurrentClient()) {
+	        if($app->confirm()) {
+	            echo json_encode(true);
+	        }else {
+ 	            throw new CHttpException('400', "unknown error");
+	        }
+	    }else {
+	        throw new CHttpException('403', 'that\'s not your appointment');
+	    }
 	}
 	
 	public function actionAjaxCreateApp() {
+	     $this->filterClient();
 	     
+	     $app = new Appointment();
+	     $app->start = $_POST['start'];
+	     $app->end = $_POST['end'];
+	     $app->clientId = Yii::app()->user->id;
+	     $app->hairdresserId = $_POST['hairdresserId'];
+	     
+	     
+	     if($app->validate() && $app->getSplittableAv()) {
+	         $app->save();
+	         echo json_encode($app->attributes);
+	     }else {
+	         throw new CHttpException('400', '{"box":["You need to drop the box on hairdressers worktime with enough time to serve you."]}');
+	     }
 	}
 	
 	public function actionAjaxDeleteApp($id) {

@@ -24,7 +24,8 @@
 	
 	<?php
 	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-1.5.2.min.js');
-	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-ui-1.8.11.custom.min');
+	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-ui-1.8.21.custom.min');
+	Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/jquery-ui-1.8.21.custom.css');
 	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/calendars.js');
     Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/fullcalendar.min.js');
     Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/js/fullcalendar.css');
@@ -70,7 +71,7 @@
 		All Rights Reserved.<br/>
 		<?php echo Yii::powered(); ?>
 	</div><!-- footer -->
-
+<div id="dialog"></div>
 </div><!-- page -->
 
 </body>

@@ -6,6 +6,9 @@
  */
 
 class Event extends CActiveRecord {
+    public $start;
+    public $end;
+    
     public function getMaxOverlappingEventsCount() {
         $events = array_merge(
             Availability::model()->findAllByAttributes(array('date' => $this->date)),
@@ -41,6 +44,13 @@ class Event extends CActiveRecord {
         }
          
         return parent::beforeValidate();
+    }
+    
+    public function isInPast() {
+        $currentHour = strtotime(date('Y-m-d H:00:00'));
+        $eventTimestamp = strtotime($this->date . ' ' . $this->hour . ':00:00');
+        
+        return $currentHour >= $eventTimestamp;
     }
     
     public function isOverlappingSameHairdresserEvent() {

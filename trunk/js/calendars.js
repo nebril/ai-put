@@ -2,7 +2,11 @@ var globalGrainMinutes = 60;
 var calendarLoaded;
 
 $(document).ready(function(){
-
+	$('.dragger').draggable({
+		zIndex: 999,
+		revert: true,
+		revertDuration: 0,
+	});
 });
 
 function makeDresserCalendar(calendarId) {
@@ -46,7 +50,7 @@ function makeDresserCalendar(calendarId) {
 							allowEdition();
 						},
 						error: function(data) {
-							reportError(data);
+							reportError(data.responseText);
 							allowEdition();
 						}
 					});
@@ -79,15 +83,26 @@ function makeDresserCalendar(calendarId) {
 								});
 							},
 							error: function(data) {
-								reportError(data);
+								reportError(data.responseText);
 							}
 						});
 					}
 				},
 				eventClick : function( event, jsEvent, view ) {
-					
+					if(event.type == 'app') {
+						$('#dialog').html('<img src="'+event.pictureUrl+'" /><br />'+event.clientName);
+						$('#dialog').dialog({
+							modal: true
+						});
+					}
 					return false;
 				}
+			});
+			
+			$('#'+calendarId).fullCalendar('addEventSource', {
+				url : basePath + '/appointment/ajaxGetDresserApps/id/',
+				color : 'green',
+				editable : false,
 			});
 		},
 		'json'
@@ -108,7 +123,7 @@ function editAvailability(event, revertFunc) {
 			allowEdition();
 		},
 		error: function(data) {
-			reportError(data);
+			reportError(data.responseText);
 			allowEdition();
 			revertFunc();
 		}
@@ -133,37 +148,31 @@ function makeClientCalendar(calendarId, dresserId) {
 				droppable: true,
 				events: data,
 				drop: function(date, allDay) {
+					var hours = parseInt($(this).attr('data-hours'));
 					var eventObject = {};
 					
-					// assign it the date that was reported
 					eventObject.start = date.getTime() / 1000;
-					eventObject.end = date.getTime() / 1000 + 2*3600;
-					eventObject.allDay = false;
-					eventObject.title = 'worktime',
+					eventObject.end = date.getTime() / 1000 + hours*3600;
+					eventObject.hairdresserId = dresserId;
 					
 					blockEdition(calendarId);
 					
 					$.ajax({
 						type: 'POST',
 						url: basePath+'/appointment/ajaxCreateApp',
-						data: {
-							start : eventObject.start,
-							end : eventObject.end
-						},
+						data: eventObject,
 						success: function(data) {
-							eventObject.availabilityId = data;
-							$('#'+calendarId).fullCalendar('renderEvent', eventObject, true);
 							allowEdition();
+							console.log(data);
 						},
 						error: function(data) {
-							reportError(data);
+							reportError(data.responseText);
 							allowEdition();
 						}
 					});
 					
 				},
 				eventClick : function( event, jsEvent, view ) {
-					alert('lala');
 					return false;
 				}
 			});
@@ -181,7 +190,7 @@ function makeClientCalendar(calendarId, dresserId) {
 
 function reportError(error) {
 	var errorReport = "";
-	$.each(JSON.parse(error.responseText), function(key, value){
+	$.each(JSON.parse(error), function(key, value){
 		errorReport += key + " - " + value + "\n";
 	})
 	alert(errorReport);

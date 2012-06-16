@@ -45,25 +45,63 @@ class Appointment extends Event
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('hairdresserId, clientId, date, hour, timeCreated', 'required'),
-			array('hairdresserId, clientId, isConfirmed, hour, length, timeCreated', 'numerical', 'integerOnly'=>true),
-			// The following rule is used by search().
+			array('hairdresserId, clientId, date, hour, createTime', 'required'),
+			array('hairdresserId, clientId, isConfirmed, hour, length, createTime', 'numerical', 'integerOnly'=>true),
+		    array('length', 'numerical', 'min' => 1, 'max' => 2), 	
+		// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, hairdresserId, clientId, isConfirmed, date, hour, length', 'safe', 'on'=>'search'),
-		);
+	        array('date', 'pastCheck'),
+        );
+	}
+	
+	public function pastCheck($attribute, $params) {
+	    if($this->isInPast()) {
+	        $this->addError($attribute, 'You can\'t operate on past events');
+	    }
 	}
 
 	public function confirm() {
 	    $transaction = Yii::app()->db->beginTransaction();
 	    try {
-	        
-	        
+	        $av = $this->getSplittableAv();
+	        if(!empty($av)) {
+	            if(!$av->split($this->hour, $this->length)){
+	                throw new Exception('Wrong split!');
+	            }
+	            $this->isConfirmed = 1;
+	            if(!$this->save()) {
+	                throw new Exception('Wrong save!');
+	            }
+	        }else {
+	            $transaction->rollback();
+	            return false;
+	        }
 	        
 	        $transaction->commit();
+	        return true;
 	    } catch(Exception $e) {
 	        $transaction->rollback();
 	        echo $e->getMessage();
+	        return false;
 	    }
+	}
+	
+	public function getSplittableAv() {
+	    $av = Availability::model()->find(array(
+	        'condition' => 'hairdresserId=:hid 
+	                AND `date`=:date
+	                AND `hour`<=:hour 
+	                AND `hour`+length>=:hour+:length',
+            'params' => array(
+                ':hid' => $this->hairdresserId,
+                ':date' => $this->date,
+                ':hour' => $this->hour,
+                ':length' => $this->length,
+            ),        
+        ));
+	    
+	    return $av;
 	}
 	
 	/**
@@ -143,7 +181,7 @@ class Appointment extends Event
 	}
 	
 	public function beforeSave() {
-	    if($this->isNewRecord()) {
+	    if($this->isNewRecord) {
 	        $this->createTime = time();
 	    }
 	    
@@ -179,6 +217,9 @@ class Appointment extends Event
 	                'start' => $startTime,
 	                'end' => $startTime + 3600 * $model->length,
 	                'allDay' => false,
+	                'pictureUrl' => Yii::app()->request->baseUrl . '/' . $model->client->profile->photo,
+	                'clientName' => $model->client->profile->getFullName(),
+	                'type' => 'app',
 	        );
 	    }
 	    return $result;

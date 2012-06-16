@@ -27,7 +27,7 @@ function deleteApp() {
 
 function confirmApp(appId) {
 	$.ajax({
-	    url: basePath + + '/appointment/ajaxConfirmApp/id/' + appId,
+	    url: basePath + '/appointment/ajaxConfirmApp/id/' + appId,
 	    type : 'get',
 	    success : function(data) {
             location.reload();
@@ -39,11 +39,6 @@ function confirmApp(appId) {
 }
 
 $(document).ready(function(){
-	$('.dragger').draggable({
-		zIndex: 999,
-		revert: true,
-		revertDuration: 0,
-	});
 
 	$('#dressers').change(function(){
 		makeClientCalendar("clientCalendar", $(this).val());
@@ -61,8 +56,9 @@ $(document).ready(function(){
 <h3>Choose your fabulous hairdresser!</h3>
 <?php echo CHtml::dropDownList('dresser', ' ', $dressers, array('id' => 'dressers')); ?>
 
-<div id="oneHour" class="dragger">short appointment</div>
-<div id="twoHour" class="dragger">long appointment</div>
+<h3>Drag your chosen appointment to the work time of </h3>
+<div id="oneHour" class="dragger" data-hours="1">short appointment (1 hour)</div>
+<div id="twoHour" class="dragger" data-hours="2">long appointment (2 hour)</div>
 <div id="calendarOverlay">wait a sec</div>
 <div id="clientCalendar"></div>
 
