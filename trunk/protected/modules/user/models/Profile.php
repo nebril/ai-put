@@ -172,7 +172,7 @@ class Profile extends UActiveRecord
 	}
 	
 	public function hairdresserScope() {
-	    $this->getCdbCriteria()->mergeWith(array(
+	    $this->getDbCriteria()->mergeWith(array(
             'condition' => 'isHairdresser=1',
         ));
 	    
@@ -180,10 +180,24 @@ class Profile extends UActiveRecord
 	}
 	
 	public function clientScope() {
-	    $this->getCdbCriteria()->mergeWith(array(
+	    $this->getDbCriteria()->mergeWith(array(
 	            'condition' => 'isHairdresser=0',
 	    ));
 	     
 	    return $this;
+	}
+	
+	public function getFullName() {
+	    return $this->firstname . ' ' . $this->lastname;
+	}
+	
+	public static function getHairdresserIdNameArray() {
+	    $result = array(' ' => ' ');
+	    $dressers = Profile::model()->hairdresserScope()->findAll();
+	    foreach($dressers as $d) {
+	        $result[$d->user_id] = $d->getFullName();
+	    }
+	    
+	    return $result;
 	}
 }

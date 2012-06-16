@@ -1,15 +1,27 @@
-<?php
-$this->breadcrumbs=array(
-	$this->module->id,
+<?php 
+$this->menu=array(
+	array('label'=>'Manage availability', 'url'=>array('availability')),
+	array('label'=>'See appointments', 'url'=>array('appointments')),
 );
-?>
-<h1><?php echo $this->uniqueId . '/' . $this->action->id; ?></h1>
 
-<p>
-This is the view content for action "<?php echo $this->action->id; ?>".
-The action belongs to the controller "<?php echo get_class($this); ?>"
-in the "<?php echo $this->module->id; ?>" module.
-</p>
-<p>
-You may customize this page by editing <tt><?php echo __FILE__; ?></tt>
-</p>
+$this->widget('zii.widgets.CMenu', array(
+        'items'=>$this->menu
+));
+?>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+	$('#dragger').draggable({
+		zIndex: 999,
+		revert: true,
+		revertDuration: 0,
+	});
+	makeDresserCalendar("availabilities");
+});
+
+</script>
+
+<div class="dragger">Drag me to the calendar to add time</div>
+<div id="calendarOverlay">wait a sec</div>
+<div id="availabilities"></div>

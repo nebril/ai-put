@@ -227,3 +227,12 @@ div.search-form
 {
 	background: #80CFFF;
 }
+
+.dragger {
+    cursor: move;
+    border: 1px solid black;
+    background-color: #6f93db;
+    color: white;
+   	width : 30%;
+}
+}
