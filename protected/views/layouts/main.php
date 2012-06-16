@@ -24,7 +24,7 @@
 	
 	<?php
 	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-1.5.2.min.js');
-	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-ui-1.8.21.custom.min');
+	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/jquery-ui-1.8.21.custom.min.js');
 	Yii::app()->clientScript->registerCssFile(Yii::app()->request->baseUrl . '/css/jquery-ui-1.8.21.custom.css');
 	Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/calendars.js');
     Yii::app()->clientScript->registerScriptFile(Yii::app()->request->baseUrl . '/js/fullcalendar.min.js');
