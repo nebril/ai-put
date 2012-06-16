@@ -56,6 +56,7 @@ $this->breadcrumbs=array(
 		if ($profileFields) {
 			foreach($profileFields as $field) {
 			?>
+			<?php if($field->varname=='isHairdresser') continue;?>
 	<div class="row">
 		<?php echo $form->labelEx($profile,$field->varname); ?>
 		<?php 
