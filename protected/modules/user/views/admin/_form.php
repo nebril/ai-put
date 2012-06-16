@@ -39,7 +39,7 @@
 		$profileFields=$profile->getFields();
 		if ($profileFields) {
 			foreach($profileFields as $field) {
-			?>
+			    ?>
 	<div class="row">
 		<?php echo CHtml::activeLabelEx($profile,$field->varname); ?>
 		<?php 
