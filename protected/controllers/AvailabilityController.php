@@ -171,23 +171,27 @@ class AvailabilityController extends Controller
 	}
 	
 	public function actionAjaxEditAv() {
-	     $this->filterDresser();
-	     $av = Availability::model()->findByPk($_POST['availabilityId']);
-	     $av->start = $_POST['start'];
-	     $av->end= $_POST['end'];
+        $this->filterDresser();
+        $av = Availability::model()->findByPk($_POST['availabilityId']);
+        $av->start = $_POST['start'];
+        $av->end= $_POST['end'];
 	     
-	    try {
-    	    if($av->save()) {
-    	        $transaction->commit();
-    	        echo json_encode(true);
-    	    }else {
-    	        throw new CHttpException('400', json_encode($av->getErrors()));
-    	    }
-	    } catch(CHttpException $e) {
-	        throw $e;
-	    } catch(Exception $e) {
-	        throw new CHttpException('500', $e->getMessage());
-	    }
+	    
+	     
+        try {
+            $transaction = Yii::app()->db->beginTransaction();
+            if($av->save()) {
+                $transaction->commit();
+                echo json_encode(true);
+            }else {
+                $transaction->rollback();
+                throw new CHttpException('400', json_encode($av->getErrors()));
+            }
+        } catch(CHttpException $e) {
+            throw $e;
+        } catch(Exception $e) {
+            throw new CHttpException('500', $e->getMessage());
+        }
 	}
 	
 	public function actionAjaxDeleteAv() {

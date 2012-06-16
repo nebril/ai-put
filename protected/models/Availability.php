@@ -15,8 +15,6 @@
  */
 class Availability extends Event
 {
-    public $start;
-    public $end;
     
 	/**
 	 * Returns the static model of the specified AR class.
@@ -53,20 +51,36 @@ class Availability extends Event
 		    array('hour', 'hoursCheck'),
             array('date', 'roomCheck'),
  	        array('hour', 'overlapCheck'),
+		    array('date', 'pastCheck'),
 		        
 		);
 	}
 	
 	public function weeklyLoadCheck($attribute, $params) {
 	    $row = Yii::app()->dbHelper->getQueryResult(
-	            "SELECT SUM(length) as summary FROM Availability WHERE `date` 
-	                BETWEEN 
-	                    date_sub(:date, interval WEEKDAY(:date) day)
-	                AND 
-	                    date_add(date_sub(:date, interval WEEKDAY(:date) day), interval 6 day)"
-	            ,array(':date' => $this->date));
+            "SELECT SUM(length) as summary FROM Availability WHERE 
+            `hairdresserId`=:hid
+	        AND
+            `date` 
+                BETWEEN 
+                    date_sub(:date, interval WEEKDAY(:date) day)
+                AND 
+                    date_add(date_sub(:date, interval WEEKDAY(:date) day), interval 6 day)
+            UNION SELECT SUM(length) as summary FROM Appointment WHERE 
+            `hairdresserId`=:hid
+            AND
+            `date` 
+            BETWEEN 
+                date_sub(:date, interval WEEKDAY(:date) day)
+            AND 
+                date_add(date_sub(:date, interval WEEKDAY(:date) day), interval 6 day)"
+            ,array(
+                ':date' => $this->date,
+                ':hid' => $this->hairdresserId,
+            )
+        );
 
-	    $summary = $row[0]['summary'];
+	    $summary = $row[0]['summary'] + (count($row) == 2 ? $row[1]['summary'] : 0);
 
 	    if(!$this->isNewRecord) {
 	        $row = Yii::app()->dbHelper->getQueryResult("SELECT length FROM Availability WHERE id=:id", array(":id" => $this->id));
@@ -103,6 +117,12 @@ class Availability extends Event
     public function overlapCheck($attribute, $params) {
         if($this->isOverlappingSameHairdresserEvent()) {
             $this->addError($attribute, 'You can\'t do two things at one time');
+        }
+    }
+    
+    public function pastCheck($attribute, $params) {
+        if($this->isInPast()) {
+            $this->addError($attribute, 'You can\'t operate on past events');
         }
     }
 	
@@ -165,6 +185,36 @@ class Availability extends Event
 	    return $this;
 	}
 	
+	public function split($hour, $length) {
+	    $firstLength = $hour - $this->hour;
+	    
+	    $secondHour = $hour + $length;
+	    $secondLength = $this->hour + $this->length - ($hour + $length);
+	    
+	    $this->delete();
+	    
+	    $a = true;
+	    if($firstLength > 0) {
+	        $av1 = new Availability();
+	        $av1->attributes = $this->attributes;
+	        $av1->id = null;
+	        $av1->length = $firstLength;
+	        $a = $av1->save();
+	    }
+	    
+	    $b = true;
+	    if($secondLength > 0) {
+	        $av2 = new Availability();
+	        $av2->attributes = $this->attributes;
+	        $av2->id = null;
+	        $av2->hour = $secondHour;
+	        $av2->length = $secondLength;
+	        $b = $av2->save();
+	    }
+	    
+	    return $a && $b;
+	}
+	
 	
 	public static function getAvsForFullCalendar($id) {
 	    $models = Availability::model()->userScope($id)->findAll();
@@ -180,6 +230,7 @@ class Availability extends Event
                 'start' => $startTime,
 	            'end' => $startTime + 3600 * $model->length,
 	            'allDay' => false,
+	            'type' => 'av',
             );
 	    }
 	    return $result;

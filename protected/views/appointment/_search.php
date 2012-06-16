@@ -21,18 +21,28 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'start'); ?>
-		<?php echo $form->textField($model,'start'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'hours'); ?>
-		<?php echo $form->textField($model,'hours'); ?>
-	</div>
-
-	<div class="row">
 		<?php echo $form->label($model,'isConfirmed'); ?>
 		<?php echo $form->textField($model,'isConfirmed'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'date'); ?>
+		<?php echo $form->textField($model,'date'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'hour'); ?>
+		<?php echo $form->textField($model,'hour'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'length'); ?>
+		<?php echo $form->textField($model,'length'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'createTime'); ?>
+		<?php echo $form->textField($model,'createTime',array('size'=>11,'maxlength'=>11)); ?>
 	</div>
 
 	<div class="row buttons">

@@ -21,8 +21,10 @@ $this->menu=array(
 		'id',
 		'hairdresserId',
 		'clientId',
-		'start',
-		'hours',
 		'isConfirmed',
+		'date',
+		'hour',
+		'length',
+		'createTime',
 	),
 )); ?>
