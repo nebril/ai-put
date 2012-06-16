@@ -143,4 +143,91 @@ class User extends CActiveRecord
 		else
 			return isset($_items[$type]) ? $_items[$type] : false;
 	}
+	
+	public static function getLengthReportData($start, $end) {
+	    $dresserIds = Profile::model()->hairdresserScope()->findAll(array('select' => 'user_id'));
+	
+	    $lengths = self::addMissingUserIds($dresserIds, Availability::getAllLengthsByHairId($start, $end));
+	    
+	    $data = array();
+	    foreach($lengths as $row) {
+	        $data[] = array(
+                'unit' => Profile::model()->findByPk($row['id'])->getFullName(),
+                'value' => array($row['avlength'], $row['applength']),
+            );
+	    }
+	    
+	    $result = array('JSChart' => array(
+	            'datasets' => array(
+	                    array(
+	                            'id' => 'avsLength',
+	                            'type' => 'bar',
+	                            'data' => $data,
+	                    ),
+	    
+	            ),
+	    ));
+	    
+	    return $result;
+	}
+	
+	
+	public static function getClientCountData($start, $end) {
+	    $dresserIds = Profile::model()->hairdresserScope()->findAll(array('select' => 'user_id'));
+	    
+	    $counts = self::addMissingUserIdsClient($dresserIds, Appointment::getCountByHairId($start, $end));
+    
+	    $data = array();
+	    foreach($counts as $row) {
+	        $data[] = array(
+	                'unit' => Profile::model()->findByPk($row['id'])->getFullName(),
+	                'value' => $row['count'],
+	        );
+	    }
+	     
+	    $result = array('JSChart' => array(
+	            'datasets' => array(
+	                    array(
+	                            'id' => 'avsLength',
+	                            'type' => 'bar',
+	                            'data' => $data,
+	                    ),
+	                     
+	            ),
+	    ));
+	     
+	    return $result;
+	}
+	
+	public static function addMissingUserIds($ids, $data) {
+	    foreach($ids as $row) {
+	        $isPresent = false;
+	        foreach($data as $event) {
+	            if($event['id'] == $row['user_id']) {
+	                $isPresent = true;
+	                break;
+	            }
+	        }
+	        if(!$isPresent) {
+	            $data[] = array('id' => $row['user_id'], 'applength' => 0, 'avlength' => 0);
+	        }
+	    }
+	    return $data;
+	}
+	
+	public static function addMissingUserIdsClient($ids, $data) {
+	    foreach($ids as $row) {
+	        $isPresent = false;
+	        foreach($data as $event) {
+	            if($event['id'] == $row['user_id']) {
+	                $isPresent = true;
+	                break;
+	            }
+	        }
+	        if(!$isPresent) {
+	            $data[] = array('id' => $row['user_id'], 'count' => 0);
+	        }
+	    }
+	    return $data;
+	}
 }

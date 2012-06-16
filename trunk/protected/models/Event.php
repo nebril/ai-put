@@ -53,6 +53,50 @@ class Event extends CActiveRecord {
         return $currentHour >= $eventTimestamp;
     }
     
+    public static function getAllLengthsByHairId($start, $end) {
+        $result = Yii::app()->dbHelper->getQueryResult(
+            'SELECT hairdresserId as id, SUM(avlength) as avlength, SUM(applength) as applength FROM (
+            	SELECT hairdresserId, SUM(length) as avlength, 0 as applength FROM Availability av WHERE date BETWEEN DATE(:start) AND DATE(:end) GROUP BY hairdresserId
+            	UNION
+            	SELECT hairdresserId, 0 as avlength, SUM(length) as applength FROM Appointment ap WHERE date BETWEEN DATE(:start) AND DATE(:end) GROUP BY hairdresserId
+            ) s GROUP BY id',
+                array(
+                        ':start' => $start,
+                        ':end' => $end
+                )
+        );
+        
+        return $result;
+    }
+    
+    public static function getLengthByHairId($start, $end) {
+        $result = Yii::app()->dbHelper->getQueryResult("SELECT hairdresserId as id, SUM(length) as value
+                FROM " . get_called_class() . 
+                ' WHERE date BETWEEN DATE(:start) AND DATE(:end)
+                GROUP BY hairdresserId',
+            array(
+                ':start' => $start,
+                ':end' => $end
+            )
+        );
+
+        return $result;
+    }
+    
+    public static function getCountByHairId($start, $end) {
+        $result =  Yii::app()->dbHelper->getQueryResult("SELECT hairdresserId as id, COUNT(length) as count
+                FROM " . get_called_class() .
+                ' WHERE date BETWEEN DATE(:start) AND DATE(:end)
+                GROUP BY hairdresserId',
+                array(
+                        ':start' => $start,
+                        ':end' => $end
+                )
+        );
+        
+        return $result;
+    }
+    
     public function isOverlappingSameHairdresserEvent() {
         $events = array_merge(
             Availability::model()->findAllByAttributes(

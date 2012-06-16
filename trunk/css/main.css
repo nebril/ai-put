@@ -235,4 +235,7 @@ div.search-form
     color: white;
    	width : 30%;
 }
+
+#charts {
+	margin-top: 175px;
 }
