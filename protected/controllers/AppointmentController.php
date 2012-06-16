@@ -50,9 +50,6 @@ class AppointmentController extends Controller
 		);
 	}
 
-	public function actionReport() {
-	    //TODO
-	}
 	
 	/**
 	 * Displays a particular model.

@@ -26,10 +26,6 @@ class AvailabilityController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array(),
-				'users'=>array('*'),
-			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
 				'actions'=>array(
 				        'ajaxGetAvs',
@@ -41,13 +37,40 @@ class AvailabilityController extends Controller
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','create','update','index','view'),
+				'actions'=>array(
+				        'admin',
+				        'delete',
+				        'create',
+				        'update',
+				        'index',
+				        'view',
+				        'report',
+				        'ajaxLengthData',
+				        'ajaxCountClients',
+			        ),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
 		);
+	}
+	
+	public function actionAjaxLengthData($start, $end) {
+	    $avData = User::getLengthReportData($start, $end);
+	    
+	    echo json_encode($avData);
+	}
+	
+	public function actionAjaxCountClients($start, $end) {
+	    $avData = User::getClientCountData($start, $end);
+	     
+	    echo json_encode($avData);
+	}
+
+	
+	public function actionReport() {
+	    $this->render('report');
 	}
 
 	/**

@@ -61,7 +61,7 @@ return array(
                         'username' => 'root',
                         'password' => 'root',
                         'charset' => 'utf8',
-                        'enableProfiling'=>true,
+                        'enableProfiling'=>false,
                         'enableParamLogging' => true,
                 ),
 
