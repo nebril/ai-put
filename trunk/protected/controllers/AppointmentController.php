@@ -198,7 +198,10 @@ class AppointmentController extends Controller
 	     
 	     if($app->validate() && $app->getSplittableAv()) {
 	         $app->save();
-	         echo json_encode($app->attributes);
+	         $app->refresh();
+	         $result = $app->attributes;
+	         $result['hairdresserName'] = $app->hairdresser->profile->getFullName();
+	         echo json_encode($result);
 	     }else {
 	         throw new CHttpException('400', '{"box":["You need to drop the box on hairdressers worktime with enough time to serve you."]}');
 	     }

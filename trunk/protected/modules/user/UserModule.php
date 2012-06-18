@@ -60,6 +60,17 @@ class UserModule extends CWebModule
 	public $returnUrl = array("/user/profile");
 	public $returnLogoutUrl = array("/user/login");
 	
+	public function getReturnUrl() {
+	    if($this->user()->superuser) {
+	        return array('/');
+	    }
+	    switch($this->user()->profile->isHairdresser) {
+	        case 0 : return array('/client');
+	        case 1 : return array('/dresser');
+	        default : return array('/user/profile');
+	    }
+	}
+	
 	public $fieldsMessage = '';
 	
 	/**

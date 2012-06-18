@@ -161,14 +161,20 @@ function makeClientCalendar(calendarId, dresserId) {
 						type: 'POST',
 						url: basePath+'/appointment/ajaxCreateApp',
 						data: eventObject,
-						success: function(data) {
+						success: function(value) {
+//							console.log(arguments);
+							$('#appList .items').append('<li data-app-id="'+value.id+'" data-expires-on="'+(parseInt(value.createTime) + 600)+'">'+value.length+' hour appointment with '+value.hairdresserName+' on '+value.date + ' at '+value.hour+' <a>Confirm appointment!</a> You still have <span class="countdown"></span></li>');
+							
+							
+							prepareUncomfirmedApps();
 							allowEdition();
 							console.log(data);
 						},
 						error: function(data) {
 							reportError(data.responseText);
 							allowEdition();
-						}
+						},
+						dataType : 'json'
 					});
 					
 				},
