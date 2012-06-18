@@ -1,5 +1,10 @@
 <script type="text/javascript">
-function makeCountdowns() {
+function prepareUncomfirmedApps() {
+	$('[data-app-id] a').unbind('click');
+	$('[data-app-id] a').click(function(){
+	    confirmApp($(this).parent().attr('data-app-id'));
+	});
+	
     $(".countdown").empty();
 
     
@@ -44,11 +49,8 @@ $(document).ready(function(){
 		makeClientCalendar("clientCalendar", $(this).val());
 	});
 
-	$('[data-app-id] a').click(function(){
-	    confirmApp($(this).parent().attr('data-app-id'));
-	});
-
-    makeCountdowns();
+	makeClientCalendar("clientCalendar", 0);
+	prepareUncomfirmedApps();
 });
 
 </script>
@@ -59,7 +61,7 @@ $(document).ready(function(){
 <h3>Drag your chosen appointment to the work time of </h3>
 <div id="oneHour" class="dragger" data-hours="1">short appointment (1 hour)</div>
 <div id="twoHour" class="dragger" data-hours="2">long appointment (2 hour)</div>
-<div id="calendarOverlay">wait a sec</div>
+<div id="calendarOverlay"></div>
 <div id="clientCalendar"></div>
 
 <h3>Uncomfirmed appointments</h3>
@@ -68,4 +70,5 @@ $(document).ready(function(){
 $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_notConfirmed',
+    'id' => 'appList',
 )); ?>

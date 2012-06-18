@@ -233,9 +233,21 @@ div.search-form
     border: 1px solid black;
     background-color: #6f93db;
     color: white;
-   	width : 30%;
+   	width : 90px;
+   	height : 50px;
+   	text-align : center;
 }
 
 #charts {
 	margin-top: 175px;
+}
+
+li[data-app-id] {
+   	float:left;
+   	width:75%;
+   	margin-top: 10px;
+}
+
+span.countdown.hasCountdown {
+	float:right;
 }
