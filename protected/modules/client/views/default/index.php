@@ -19,8 +19,11 @@ function prepareUncomfirmedApps() {
     });
 }
 
-function deleteApp() {
-	var appId = $(this).parent().attr('data-app-id');
+function deleteCallback() {
+	deleteApp($(this).parent().attr('data-app-id'));
+}
+
+function deleteApp(appId) {
     $.ajax({
         url : basePath + '/appointment/ajaxDeleteApp/id/' + appId,
         type : 'get',
@@ -38,8 +41,10 @@ function confirmApp(appId) {
             location.reload();
         },
         error : function(data) {
-        	reportError(data);
-        }
+        	reportError(JSON.parse(data.responseText));
+        	deleteApp(appId);
+        },
+        dataType : 'json'
 	});
 }
 
@@ -71,4 +76,5 @@ $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_notConfirmed',
     'id' => 'appList',
+    'summaryText' => '',
 )); ?>
