@@ -179,10 +179,10 @@ class AppointmentController extends Controller
 	        if($app->confirm()) {
 	            echo json_encode(true);
 	        }else {
- 	            throw new CHttpException('400', "unknown error");
+ 	            throw new CHttpException('400', json_encode(array('error' => array('Time already taken. Please create a new appointment.'))));
 	        }
 	    }else {
-	        throw new CHttpException('403', 'that\'s not your appointment');
+	        throw new CHttpException('403', json_encode(array('error' => array('That\'s not your appointment.'))));
 	    }
 	}
 	
@@ -211,14 +211,14 @@ class AppointmentController extends Controller
 	    $this->filterClient();
 	    $app = Appointment::model()->findByPk($id);
 	    
-	    if($app->belongsToCurrentClient()) {
+	    if($app->belongsToCurrentClient() && !$app->isConfirmed) {
     	    if($app->delete()) {
     	        echo json_encode(true);
     	    }else {
-    	        throw new CHttpException('400', "unknown error");
+    	        throw new CHttpException('400', json_encode(array('error' => array('An error occurred.'))));
     	    }
 	    }else {
-	        throw new CHttpException('403', 'that\'s not your appointment');
+	        throw new CHttpException('403', json_encode(array('error' => array('You can\'t delete this appointment.'))));
 	    }
 	}
 	

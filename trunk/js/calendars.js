@@ -50,7 +50,7 @@ function makeDresserCalendar(calendarId) {
 							allowEdition();
 						},
 						error: function(data) {
-							reportError(data.responseText);
+							reportError(JSON.parse(data.responseText));
 							allowEdition();
 						}
 					});
@@ -83,7 +83,7 @@ function makeDresserCalendar(calendarId) {
 								});
 							},
 							error: function(data) {
-								reportError(data.responseText);
+								reportError(JSON.parse(data.responseText));
 							}
 						});
 					}
@@ -123,7 +123,7 @@ function editAvailability(event, revertFunc) {
 			allowEdition();
 		},
 		error: function(data) {
-			reportError(data.responseText);
+			reportError(JSON.parse(data.responseText));
 			allowEdition();
 			revertFunc();
 		}
@@ -162,16 +162,15 @@ function makeClientCalendar(calendarId, dresserId) {
 						url: basePath+'/appointment/ajaxCreateApp',
 						data: eventObject,
 						success: function(value) {
-//							console.log(arguments);
 							$('#appList .items').append('<li data-app-id="'+value.id+'" data-expires-on="'+(parseInt(value.createTime) + 600)+'">'+value.length+' hour appointment with '+value.hairdresserName+' on '+value.date + ' at '+value.hour+' <a>Confirm appointment!</a> You still have <span class="countdown"></span></li>');
 							
-							
 							prepareUncomfirmedApps();
+							
+							$('#appList .items .empty').remove();
 							allowEdition();
-							console.log(data);
 						},
 						error: function(data) {
-							reportError(data.responseText);
+							reportError(data);
 							allowEdition();
 						},
 						dataType : 'json'
@@ -196,7 +195,7 @@ function makeClientCalendar(calendarId, dresserId) {
 
 function reportError(error) {
 	var errorReport = "";
-	$.each(JSON.parse(error), function(key, value){
+	$.each(error, function(key, value){
 		errorReport += key + " - " + value + "\n";
 	})
 	alert(errorReport);
