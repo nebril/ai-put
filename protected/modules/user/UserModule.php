@@ -222,7 +222,7 @@ class UserModule extends CWebModule
 	    $mail->SMTPSecure = true; 
 	    $mail->Username = 'maciej.iai@gmail.com'; 
 	    $mail->Port = '465'; 
-	    $mail->Password = 'macije90gacek'; 
+	    $mail->Password = 'maciej90gacek'; 
 	    $mail->SetFrom('maciej.iai@gmail.com', 'maciej.iai@gmail.com'); 
 	    $mail->Subject = $subject; 
 	    $mail->AltBody = $message; 
