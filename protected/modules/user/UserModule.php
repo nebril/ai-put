@@ -214,11 +214,21 @@ class UserModule extends CWebModule
 	 * Send mail method
 	 */
 	public static function sendMail($email,$subject,$message) {
-    	$adminEmail = Yii::app()->params['adminEmail'];
-	    $headers = "MIME-Version: 1.0\r\nFrom: $adminEmail\r\nReply-To: $adminEmail\r\nContent-Type: text/html; charset=utf-8";
-	    $message = wordwrap($message, 70);
-	    $message = str_replace("\n.", "\n..", $message);
-	    return mail($email,'=?UTF-8?B?'.base64_encode($subject).'?=',$message,$headers);
+	    Yii::import('application.extensions.phpmailer.JPhpMailer'); 
+	    $mail = new JPhpMailer; 
+	    $mail->IsSMTP(); 
+	    $mail->Host = 'smpt.gmail.com'; 
+	    $mail->SMTPAuth = true; 
+	    $mail->SMTPSecure = true; 
+	    $mail->Username = 'maciej.iai@gmail.com'; 
+	    $mail->Port = '465'; 
+	    $mail->Password = 'macije90gacek'; 
+	    $mail->SetFrom('maciej.iai@gmail.com', 'maciej.iai@gmail.com'); 
+	    $mail->Subject = $subject; 
+	    $mail->AltBody = $message; 
+	    $mail->MsgHTML($message); 
+	    $mail->AddAddress($email, $email); 
+	    return $mail->Send();
 	}
 	
 	/**
