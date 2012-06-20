@@ -219,11 +219,11 @@ class UserModule extends CWebModule
 	    $mail->IsSMTP(); 
 	    $mail->Host = 'smtp.gmail.com'; 
 	    $mail->SMTPAuth = true; 
-	    $mail->SMTPSecure = true; 
-	    $mail->Username = 'maciej.iai@gmail.com'; 
+	    $mail->SMTPSecure = 'ssl'; 
+	    $mail->Username = 'alputter88@gmail.com'; 
 	    $mail->Port = '465'; 
-	    $mail->Password = 'maciej90gacek'; 
-	    $mail->SetFrom('maciej.iai@gmail.com', 'maciej.iai@gmail.com'); 
+	    $mail->Password = 'alputter88'; 
+	    $mail->SetFrom('alputter88@gmail.com', 'alputter88@gmail.com'); 
 	    $mail->Subject = $subject; 
 	    $mail->AltBody = $message; 
 	    $mail->MsgHTML($message); 
