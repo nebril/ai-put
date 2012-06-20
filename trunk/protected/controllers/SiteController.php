@@ -21,6 +21,10 @@ class SiteController extends Controller
 		);
 	}
 
+	public function actionTestMail() {
+	    var_dump(Yii::app()->getModule('user')->sendMail('maciej.iai@gmail.com', 'temat', 'tresc'));
+	}
+	
 	/**
 	 * This is the default 'index' action that is invoked
 	 * when an action is not explicitly requested by users.
