@@ -217,7 +217,7 @@ class UserModule extends CWebModule
 	    Yii::import('application.extensions.phpmailer.JPhpMailer'); 
 	    $mail = new JPhpMailer; 
 	    $mail->IsSMTP(); 
-	    $mail->Host = 'smpt.gmail.com'; 
+	    $mail->Host = 'smtp.gmail.com'; 
 	    $mail->SMTPAuth = true; 
 	    $mail->SMTPSecure = true; 
 	    $mail->Username = 'maciej.iai@gmail.com'; 
